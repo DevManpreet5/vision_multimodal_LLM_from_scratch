@@ -1,1 +1,1 @@
-# vision_multimodal_LLM_from_scratch
+# vision multimodal LLM from scratch
