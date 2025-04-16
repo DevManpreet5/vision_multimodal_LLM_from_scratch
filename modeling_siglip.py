@@ -17,5 +17,20 @@ class siglipConfig:
         self.layer_norm_eps = layer_norm_eps
         self.num_image_tokens = num_image_tokens
     
+
+class siglipVisionTransformer(nn.Module):
+    def __init__(self,config):
+        self.config=config
+        embed_dim = config.hidden_size
+
+        self.embedding=siglipEmbedding(config)
+        self.encoder=siglipEncoder(config)
+        self.post_layernorm=nn.LayerNorm(embed_dim,eps=config.layer_norm_eps)
     
+    def forward(self,x):
+        hidden_state=self.embedding(x)
+        final=self.encoder(hidden_state)
+        final=self.post_layernorm(hidden_state)
+
+        return final
         
