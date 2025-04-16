@@ -33,4 +33,14 @@ class siglipVisionTransformer(nn.Module):
         final=self.post_layernorm(hidden_state)
 
         return final
+    
+class SiglipVisionModel(nn.Module):
+
+    def __init__(self, config):
+        super().__init__()
+        self.config = config
+        self.vision_model = siglipVisionTransformer(config)
+
+    def forward(self, pixel_values) :
+        return self.vision_model(pixel_values=pixel_values) 
         
