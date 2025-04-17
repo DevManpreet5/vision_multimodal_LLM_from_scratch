@@ -77,5 +77,28 @@ class siglipEmbedding(nn.Module):
         embeddings = embeddings + self.position_embedding(self.position_ids)
         return embeddings
 
+class siglipEncoder(nn.Module):
+    def __init__(self, config):
+        super().__init__()
+        self.config = config
+        self.embed_dim = config.hidden_size
+        self.layer_norm1=nn.LayerNorm(self.embed_dim,eps=self.config.layer_norm_eps)
+        self.self_attention=siglipAttention(config)
+        self.layer_norm2=nn.LayerNorm(self.embed_dim,eps=self.config.layer_norm_eps)
+        self.mlp=siglipMLP(config)
+    
+    def forward(self,hidden):
+        residual=hidden
+        hidden=self.layer_norm1(hidden)
+        hidden,_=self.self_attention(hidden)
+        hidden=hidden+residual
+        residual=hidden
+        hidden=self.layer_norm2(hidden)
+        hidden=self.mlp(hidden)
+        hidden=hidden+residual
+        return hidden        
+
+
+
 
         
