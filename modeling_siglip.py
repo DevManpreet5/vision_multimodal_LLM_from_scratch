@@ -110,6 +110,34 @@ class siglipAttention(nn.Module):
         self.v_proj = nn.Linear(self.embed_dim, self.embed_dim)
         self.q_proj = nn.Linear(self.embed_dim, self.embed_dim)
         self.out_proj = nn.Linear(self.embed_dim, self.embed_dim)
+    
+    def forward(self,hidden_state):
+        batch_size,seq_len,_=hidden_state.size()
+        k_state=self.k_proj(hidden_state)
+        v_state=self.v_proj(hidden_state)
+        q_state=self.q_proj(hidden_state)
+
+        k_state=k_state.view(batch_size,seq_len,self.num_heads,self.head_dim).transpose(1,2)
+        v_state=v_state.view(batch_size,seq_len,self.num_heads,self.head_dim).transpose(1,2)
+        q_state=q_state.view(batch_size,seq_len,self.num_heads,self.head_dim).transpose(1,2)
+
+        attn_weights = (torch.matmul(q_state, k_state.transpose(2, 3)) * self.scale)
+        attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(q_state.dtype)
+        attn_weights = nn.functional.dropout(attn_weights, p=self.dropout, training=self.training)
+
+        attn_output = torch.matmul(attn_weights, v_state)
+        attn_output = attn_output.transpose(1, 2).contiguous()
+        attn_output = attn_output.reshape(batch_size, seq_len, self.embed_dim)
+        attn_output = self.out_proj(attn_output)
+
+        return attn_output, attn_weights
+
+
+
+
+
+
+
         
 
 
