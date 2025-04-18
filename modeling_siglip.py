@@ -27,8 +27,8 @@ class siglipVisionTransformer(nn.Module):
         self.encoder=siglipEncoder(config)
         self.post_layernorm=nn.LayerNorm(embed_dim,eps=config.layer_norm_eps)
     
-    def forward(self,x):
-        hidden_state=self.embedding(x)
+    def forward(self,pixel_values):
+        hidden_state=self.embedding(pixel_values)
         final=self.encoder(hidden_state)
         final=self.post_layernorm(hidden_state)
 
@@ -77,7 +77,7 @@ class siglipEmbedding(nn.Module):
         embeddings = embeddings + self.position_embedding(self.position_ids)
         return embeddings
 
-class siglipEncoder(nn.Module):
+class SiglipEncoderLayer(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.config = config
@@ -131,6 +131,19 @@ class siglipAttention(nn.Module):
         attn_output = self.out_proj(attn_output)
 
         return attn_output, attn_weights
+
+class siglipEncoder(nn.Module):
+    def __init__(self,config):
+        self.config=config
+        self.layers=nn.ModuleList([siglipEncoder(config) for _ in range(config.num_hidden_layers)])
+    
+    def forward(self,value):
+        value1=value
+        for encoderlayer in self.layers:
+            value1=encoderlayer(value1)
+            
+        return value1
+
 
 
 
