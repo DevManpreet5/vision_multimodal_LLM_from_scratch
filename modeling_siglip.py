@@ -20,6 +20,7 @@ class siglipConfig:
 
 class siglipVisionTransformer(nn.Module):
     def __init__(self,config):
+        super().__init__()
         self.config=config
         embed_dim = config.hidden_size
 
@@ -30,7 +31,7 @@ class siglipVisionTransformer(nn.Module):
     def forward(self,pixel_values):
         hidden_state=self.embedding(pixel_values)
         final=self.encoder(hidden_state)
-        final=self.post_layernorm(hidden_state)
+        final=self.post_layernorm(final)
 
         return final
     
@@ -47,6 +48,7 @@ class SiglipVisionModel(nn.Module):
 
 class siglipEmbedding(nn.Module):
     def __init__(self,config):
+        super().__init__()
         self.config = config
         self.embed_dim = config.hidden_size
         self.image_size = config.image_size
@@ -100,10 +102,11 @@ class SiglipEncoderLayer(nn.Module):
 
 class siglipAttention(nn.Module):
     def __init__(self,config):
+        super().__init__()
         self.config=config
         self.embed_dim=config.hidden_size
         self.num_heads=config.num_attention_heads
-        self.head_dim=self.embed_dim/self.num_heads
+        self.head_dim=self.embed_dim//self.num_heads
         self.scale=self.head_dim**(-0.5)
         self.dropout = config.attention_dropout
         self.k_proj = nn.Linear(self.embed_dim, self.embed_dim)
@@ -134,15 +137,29 @@ class siglipAttention(nn.Module):
 
 class siglipEncoder(nn.Module):
     def __init__(self,config):
+        super().__init__()
         self.config=config
-        self.layers=nn.ModuleList([siglipEncoder(config) for _ in range(config.num_hidden_layers)])
+        self.layers=nn.ModuleList([SiglipEncoderLayer(config) for _ in range(config.num_hidden_layers)])
     
     def forward(self,value):
         value1=value
         for encoderlayer in self.layers:
             value1=encoderlayer(value1)
-            
+
         return value1
+
+class siglipMLP(nn.Module):
+    def __init__ (self,config):
+        super().__init__()
+        self.config=config
+        self.fc1=nn.Linear(config.hidden_size,config.intermediate_size)
+        self.fc2=nn.Linear(config.intermediate_size,config.hidden_size)
+    
+    def forward(self,x):
+        x=self.fc1(x)
+        x=nn.functional.gelu(x,approximate='tanh')
+        x=self.fc2(x)
+        return x
 
 
 
