@@ -27,9 +27,10 @@ class peligemmaProcessor:
     def __call__(self, text , images , padding ="longest", truncation=True):
         pixels_value=process_images(images,size=(self.image_size,self.image_size),resample=Image.Resampling.BICUBIC,rescale_factor=1 / 255.0,image_mean=IMAGENET_STANDARD_MEAN,image_std=IMAGENET_STANDARD_STD)
         pixels_value=np.stack(pixels_value,axis=0)
-        pixels_value=torch.tensor(pixels_value)
+        pixels_value=torch.tensor(pixels_value, dtype=torch.float32)
 
-        input_strings = [add_image_tokens_to_prompt(prefix_prompt=prompt,bos_token=self.tokenizer.bos_token,image_seq_len=self.image_seq_length,image_token=self.IMAGE_TOKEN)
+
+        input_strings = [add_image_tokens_to_prompt(prefix_prompt=prompt,bos_token=self.tokenizer.bos_token,image_seq_len=self.num_token_size,image_token=self.IMAGE_TOKEN)
             for prompt in text]
         
         inputs = self.tokenizer(input_strings,return_tensors="pt",padding=padding,truncation=truncation)
@@ -62,6 +63,9 @@ def normalize(img,mean,std):
     std = np.array(std, dtype=img.dtype)
     img = (img - mean) / std
     return img
+
+def add_image_tokens_to_prompt(prefix_prompt, bos_token, image_seq_len, image_token):
+    return f"{image_token * image_seq_len}{bos_token}{prefix_prompt}\n"
 
 
 
