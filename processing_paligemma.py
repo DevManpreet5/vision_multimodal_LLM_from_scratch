@@ -24,7 +24,7 @@ class peligemmaProcessor:
         tokenizer.add_bos_token = False
         tokenizer.add_eos_token = False
     
-    def __call__(self, text , images , padding , truncation):
+    def __call__(self, text , images , padding ="longest", truncation=True):
         pixels_value=process_images(images,size=(self.image_size,self.image_size),resample=Image.Resampling.BICUBIC,rescale_factor=1 / 255.0,image_mean=IMAGENET_STANDARD_MEAN,image_std=IMAGENET_STANDARD_STD)
         pixels_value=np.stack(pixels_value,axis=0)
         pixels_value=torch.tensor(pixels_value)
@@ -37,5 +37,17 @@ class peligemmaProcessor:
         return_data = {"pixel_values": pixels_value, **inputs}
 
         return return_data
+
+def process_images(images,size,resample,rescale_factor,image_mean,image_std):
+    height , width=size[0], size[1]
+    images=[resize(img,size=(height,width),resample=resample) for img in images]
+    images=[np.array(img) for img in images]
+    images=[rescale(img,scale=rescale_factor) for img in images]
+    images=[normalize(img,mean=image_mean,std=image_std) for img in images]
+    images=[img.transpose(2,0,1) for img in images]
+    return images
+
+
+
 
        
