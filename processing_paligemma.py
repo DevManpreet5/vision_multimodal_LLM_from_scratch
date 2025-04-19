@@ -47,6 +47,22 @@ def process_images(images,size,resample,rescale_factor,image_mean,image_std):
     images=[img.transpose(2,0,1) for img in images]
     return images
 
+def resize(img,size,resample,reducing_gap=None):
+    height,width=size
+    resized_image=img.resize( (width, height), resample=resample, reducing_gap=reducing_gap)
+    return resized_image
+
+def rescale(img,scale,dtype= np.float32):
+    rescaled_image = img * scale
+    rescaled_image = rescaled_image.astype(dtype)
+    return rescaled_image
+
+def normalize(img,mean,std):
+    mean = np.array(mean, dtype=img.dtype)
+    std = np.array(std, dtype=img.dtype)
+    img = (img - mean) / std
+    return img
+
 
 
 
