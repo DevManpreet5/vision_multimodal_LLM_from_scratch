@@ -2,6 +2,8 @@
 
 This project documents the theory and design behind building a vision-language large language model (VLM-LLM) from scratch. It is conceptually inspired by models like PaLI-Gemma, with an emphasis on simplicity, scalability, and unified modeling.
 
+![Architecture of PaLI-Gemma](./architecture.png)
+
 ## Objective
 
 To build a transformer-based multimodal model capable of understanding and generating text conditioned on visual inputs. The model should support a range of tasks including image captioning, OCR, VQA, and visual reasoning — all framed as text generation.
