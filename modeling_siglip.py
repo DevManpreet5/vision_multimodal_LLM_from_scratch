@@ -2,9 +2,21 @@ import torch
 import torch.nn as nn
 
 class siglipConfig:
-    def __init__(self,hidden_size=768,intermediate_size=3072,num_hidden_layer=12,num_attentionhead=12,num_channel=3,image_size=224,patch_size=16,layer_norm_eps=1e-6,
+    def __init__(
+        self,
+        hidden_size=768,
+        intermediate_size=3072,
+        num_hidden_layer=12,
+        num_attentionhead=12,
+        num_channel=3,
+        image_size=224,
+        patch_size=16,
+        layer_norm_eps=1e-6,
         attention_dropout=0.0,
-        num_image_tokens=None):
+        num_image_tokens=None,
+        hidden_act="gelu",
+        **kwargs  
+    ):
         super().__init__()
         self.hidden_size = hidden_size
         self.intermediate_size = intermediate_size
@@ -16,6 +28,8 @@ class siglipConfig:
         self.attention_dropout = attention_dropout
         self.layer_norm_eps = layer_norm_eps
         self.num_image_tokens = num_image_tokens
+        self.hidden_act = hidden_act  
+
     
 
 class siglipVisionTransformer(nn.Module):
